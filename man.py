@@ -1,6 +1,9 @@
 import subprocess
 import sys
 import os
+# အပေါ်ဆုံး ထည့်ပါ
+if os.getenv("RENDER"):
+    os.environ["BOT_PORT"] = os.getenv("PORT", "5000")
 import sqlite3
 import threading
 import time
