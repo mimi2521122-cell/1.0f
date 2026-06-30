@@ -1,24 +1,24 @@
-name: Run Telegram Cloud Hosting Bot
+name: 24/7 Telegram Cloud Hosting Bot
 
 on:
   push:
-    branches: [ "main", "master" ] # ကုဒ်အသစ် တင်လိုက်တိုင်း Run မယ်
+    branches: [ "main", "master" ]
   schedule:
-    - cron: '*/20 * * * *' # မိနစ် ၂၀ တိုင်း တစ်ကြိမ် အလိုအလျောက် ပြန်ပြန် Run မယ် (24/7 ဖြစ်စေရန်)
-  workflow_dispatch: # GitHub Web ပေါ်ကနေ Manual နှိပ်ပြီး Run ချင်ရင် သုံးဖို့
+    - cron: '*/20 * * * *' # မိနစ် ၂၀ တိုင်း Bot အိပ်မသွားအောင် လှမ်းနိုးမည့်စနစ်
+  workflow_dispatch: # Manual နှိပ်ပြီး Run ချင်လျှင် သုံးရန်
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
+    - name: Checkout Code
       uses: actions/checkout@v4
 
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-python: '3.10'
+        python-version: '3.10'
         cache: 'pip'
 
     - name: Install Dependencies
@@ -26,12 +26,14 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    - name: Run Telegram Bot
+    - name: Run Telegram Bot with Anti-Shutdown Loop
       env:
         BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
         OWNER_ID: ${{ secrets.OWNER_ID }}
         ADMIN_ID: ${{ secrets.ADMIN_ID }}
-        RENDER: "true"
+        ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
       run: |
-        # GitHub Actions က ၆ နာရီပြည့်ရင် သူ့အလိုလို ပိတ်တတ်လို့ အချိန်စောင့်စနစ်နဲ့ Run ခိုင်းခြင်း ဖြစ်ပါတယ်
-        timeout 340m python dfd.py || true
+        echo "🚀 Starting Bot Script..."
+        # GitHub Container မပိတ်သွားစေရန် အချိန် ၅ နာရီခွဲ (၃၃၀ မိနစ်) ကြာအောင် Loop ပတ်ပြီး Run ထားခြင်းဖြစ်သည်
+        timeout 330m python dfd.py || true
+        echo "🔄 Workflow interval restarting..."
